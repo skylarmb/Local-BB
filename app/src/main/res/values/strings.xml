@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Attendance</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="choose_account">Select your account</string>
+    <string name="button_send">Check In</string>
+    <string name="location_accuracy">Location accuracy:</string>
+    <string name="success">Success</string>
+    <string name="failure">Failure</string>
+    <string name="post_msg">Post</string>
+</resources>
