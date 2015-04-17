@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,9 +77,6 @@ public class MainActivity extends ActionBarActivity {
 
 
     public void clickButton(View v) {
-        if (lastLocation == null) {
-            return;
-        }
 
         // Get the text we want to send.
         EditText et = (EditText) findViewById(R.id.editText);
@@ -88,7 +86,7 @@ public class MainActivity extends ActionBarActivity {
         PostMessageSpec myCallSpec = new PostMessageSpec();
 
 
-        myCallSpec.url = SERVER_URL_PREFIX + "checkin.json";
+        myCallSpec.url = SERVER_URL_PREFIX + "post_msg.json";
         myCallSpec.context = MainActivity.this;
         // Let's add the parameters.
         HashMap<String,String> m = new HashMap<String,String>();
@@ -129,6 +127,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void useResult(Context context, String result) {
             // Translates the string result, decoding the Json.
+            Log.i(LOG_TAG, "Received string: " + result);
             Gson gson = new Gson();
             MessageList ml = gson.fromJson(result, MessageList.class);
             String s = "";

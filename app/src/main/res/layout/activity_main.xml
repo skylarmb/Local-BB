@@ -20,7 +20,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/editText"
         android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/textView"
         android:layout_marginBottom="156dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
