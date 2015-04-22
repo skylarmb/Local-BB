@@ -1,16 +1,25 @@
 package com.dealfaro.luca.clicker;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -18,6 +27,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -38,6 +48,9 @@ public class MainActivity extends ActionBarActivity {
     // To remember the favorite account.
     public static final String PREF_ACCOUNT = "pref_account";
 
+    // To remember the post we received.
+    public static final String PREF_POSTS = "pref_posts";
+
     // Uploader.
     private ServerCall uploader;
 
@@ -46,10 +59,91 @@ public class MainActivity extends ActionBarActivity {
 
     private ArrayList<String> accountList;
 
+    private class ListElement {
+        ListElement() {};
+
+        public String textLabel;
+        public String buttonLabel;
+    }
+
+    private ArrayList<ListElement> aList;
+
+    private class MyAdapter extends ArrayAdapter<ListElement> {
+
+        int resource;
+        Context context;
+
+        public MyAdapter(Context _context, int _resource, List<ListElement> items) {
+            super(_context, _resource, items);
+            resource = _resource;
+            context = _context;
+            this.context = _context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LinearLayout newView;
+
+            ListElement w = getItem(position);
+
+            // Inflate a new view if necessary.
+            if (convertView == null) {
+                newView = new LinearLayout(getContext());
+                String inflater = Context.LAYOUT_INFLATER_SERVICE;
+                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(inflater);
+                vi.inflate(resource,  newView, true);
+            } else {
+                newView = (LinearLayout) convertView;
+            }
+
+            // Fills in the view.
+            TextView tv = (TextView) newView.findViewById(R.id.itemText);
+            Button b = (Button) newView.findViewById(R.id.itemButton);
+            tv.setText(w.textLabel);
+            b.setText(w.buttonLabel);
+
+            // Sets a listener for the button, and a tag for the button as well.
+            b.setTag(new Integer(position));
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Reacts to a button press.
+                    // Gets the integer tag of the button.
+                    String s = v.getTag().toString();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, s, duration);
+                    toast.show();
+                }
+            });
+
+            // Set a listener for the whole list item.
+            newView.setTag(w.textLabel);
+            newView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String s = v.getTag().toString();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, s, duration);
+                    toast.show();
+                }
+            });
+
+            return newView;
+        }
+    }
+
+    private MyAdapter aa;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        aList = new ArrayList<ListElement>();
+        aa = new MyAdapter(this, R.layout.list_element, aList);
+        ListView myListView = (ListView) findViewById(R.id.listView);
+        myListView.setAdapter(aa);
+        aa.notifyDataSetChanged();
     }
 
     @Override
@@ -61,6 +155,13 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // First super, then do stuff.
+        // Let us display the previous posts, if any.
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String result = settings.getString(PREF_POSTS, null);
+        if (result != null) {
+            displayResult(result);
+        }
     }
 
 
@@ -128,15 +229,28 @@ public class MainActivity extends ActionBarActivity {
         public void useResult(Context context, String result) {
             // Translates the string result, decoding the Json.
             Log.i(LOG_TAG, "Received string: " + result);
-            Gson gson = new Gson();
-            MessageList ml = gson.fromJson(result, MessageList.class);
-            String s = "";
-            for (int i = 0; i < ml.messages.length; i++) {
-                s = s + ml.messages[i] + ",";
-            }
-            TextView tv = (TextView) findViewById(R.id.textView);
-            tv.setText(s);
+            displayResult(result);
+            // Stores in the settings the last messages received.
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(PREF_POSTS, result);
+            editor.commit();
         }
+    }
+
+
+    private void displayResult(String result) {
+        Gson gson = new Gson();
+        MessageList ml = gson.fromJson(result, MessageList.class);
+        // Fills aList, so we can fill the listView.
+        aList.clear();
+        for (int i = 0; i < ml.messages.length; i++) {
+            ListElement ael = new ListElement();
+            ael.textLabel = ml.messages[i];
+            ael.buttonLabel = "Click";
+            aList.add(ael);
+        }
+        aa.notifyDataSetChanged();
     }
 
 
