@@ -227,14 +227,19 @@ public class MainActivity extends ActionBarActivity {
     class PostMessageSpec extends ServerCallSpec {
         @Override
         public void useResult(Context context, String result) {
-            // Translates the string result, decoding the Json.
-            Log.i(LOG_TAG, "Received string: " + result);
-            displayResult(result);
-            // Stores in the settings the last messages received.
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PREF_POSTS, result);
-            editor.commit();
+            if (result == null) {
+                // Do something here, e.g. tell the user that the server cannot be contacted.
+                Log.i(LOG_TAG, "The server call failed.");
+            } else {
+                // Translates the string result, decoding the Json.
+                Log.i(LOG_TAG, "Received string: " + result);
+                displayResult(result);
+                // Stores in the settings the last messages received.
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(PREF_POSTS, result);
+                editor.commit();
+            }
         }
     }
 
