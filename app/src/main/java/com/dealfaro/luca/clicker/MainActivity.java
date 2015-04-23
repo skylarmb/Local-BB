@@ -1,6 +1,7 @@
 package com.dealfaro.luca.clicker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -100,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
             TextView tv = (TextView) newView.findViewById(R.id.itemText);
             Button b = (Button) newView.findViewById(R.id.itemButton);
             tv.setText(w.textLabel);
-            b.setText(w.buttonLabel);
+            b.setText(R.string.share_btn);
 
             // Sets a listener for the button, and a tag for the button as well.
             b.setTag(new Integer(position));
@@ -108,23 +108,28 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     // Reacts to a button press.
-                    // Gets the integer tag of the button.
-                    String s = v.getTag().toString();
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, s, duration);
-                    toast.show();
+                    // Gets the message to share.
+                    String msg = getItem(((Integer) v.getTag()).intValue()).textLabel;
+                    // Create an intent to share it.
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, msg);
+                    sendIntent.setType("text/plain");
+                    startActivity(sendIntent);
                 }
             });
 
             // Set a listener for the whole list item.
-            newView.setTag(w.textLabel);
+            newView.setTag(new Integer(position));
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String s = v.getTag().toString();
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, s, duration);
-                    toast.show();
+                    // Gets the ID of the message.
+                    int idx = ((Integer) v.getTag()).intValue();
+                    // Creates an intent to send to our MessageActivity.
+                    Intent intent = new Intent(context, MessageActivity.class);
+                    intent.putExtra("idx", idx);
+                    startActivity(intent);
                 }
             });
 
@@ -227,14 +232,18 @@ public class MainActivity extends ActionBarActivity {
     class PostMessageSpec extends ServerCallSpec {
         @Override
         public void useResult(Context context, String result) {
-            // Translates the string result, decoding the Json.
-            Log.i(LOG_TAG, "Received string: " + result);
-            displayResult(result);
-            // Stores in the settings the last messages received.
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PREF_POSTS, result);
-            editor.commit();
+            if (result == null) {
+                // Display a toast saying that the server could not be reached.
+            } else {
+                // Translates the string result, decoding the Json.
+                Log.i(LOG_TAG, "Received string: " + result);
+                displayResult(result);
+                // Stores in the settings the last messages received.
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(PREF_POSTS, result);
+                editor.commit();
+            }
         }
     }
 

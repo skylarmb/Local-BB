@@ -9,4 +9,6 @@
     <string name="success">Success</string>
     <string name="failure">Failure</string>
     <string name="post_msg">Post</string>
+    <string name="title_activity_message">MessageActivity</string>
+    <string name="share_btn">Share</string>
 </resources>
