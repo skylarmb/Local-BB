@@ -160,10 +160,17 @@ public class MainActivity extends ActionBarActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String result = settings.getString(PREF_POSTS, null);
         if (result != null) {
-            displayResult(result);
+            try {
+                displayResult(result);
+            } catch (Exception e) {
+                // Removes settings that can't be correctly decoded.
+                Log.w(LOG_TAG, "Failed to display old messages: " + result + " " + e);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.remove(PREF_POSTS);
+                editor.commit();
+            }
         }
     }
-
 
 
     @Override
