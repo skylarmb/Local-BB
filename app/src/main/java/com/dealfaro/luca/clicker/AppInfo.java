@@ -27,7 +27,7 @@ public class AppInfo {
         if (instance == null) {
             instance = new AppInfo();
             // Creates a userid, if I don't have one.
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
             instance.userid = settings.getString(PREF_USERID, null);
             if (instance.userid == null) {
                 // We need to create a userid.
