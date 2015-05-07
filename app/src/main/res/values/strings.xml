@@ -9,4 +9,5 @@
     <string name="success">Success</string>
     <string name="failure">Failure</string>
     <string name="post_msg">Post</string>
+    <string name="title_activity_chat">Private Chat</string>
 </resources>

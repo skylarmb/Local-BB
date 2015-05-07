@@ -2,6 +2,7 @@ package com.dealfaro.luca.clicker;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,7 +10,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,10 +25,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.apache.http.impl.cookie.DateUtils;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -53,7 +48,7 @@ public class MainActivity extends ActionBarActivity {
     // This is an id for my app, to keep the key space separate from other apps.
     private static final String MY_APP_ID = "luca_bboard";
 
-    private static final String SERVER_URL_PREFIX = "https://luca-teaching.appspot.com/store/default/";
+    private static final String SERVER_URL_PREFIX = "https://hw3n-dot-luca-teaching.appspot.com/store/default/";
 
     // To remember the favorite account.
     public static final String PREF_ACCOUNT = "pref_account";
@@ -69,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
     private ArrayList<String> accountList;
     private ProgressDialog progress;
+
 
 
     //display infinite loading widget
@@ -95,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
         public String timeText;
         public String timeStamp;
         public String messageID;
+        public String dest;
     }
 
     private ArrayList<ListElement> aList;
@@ -137,11 +134,18 @@ public class MainActivity extends ActionBarActivity {
 
             // Set a listener for the whole list item.
             newView.setTag("Posted: " + w.timeStamp + "\nID: " + w.messageID);
+            newView.setTag(w.dest);
+
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String s = v.getTag().toString();
-                    showToast(s);
+                    //String s = v.getTag().toString();
+                    //showToast(s);
+                    //
+                    String destination = "com.dealfaro.luca.clicker.DESTINATION";
+                    Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                    intent.putExtra(destination, v.getTag().toString());
+                    startActivity(intent);
                 }
             });
 
@@ -149,7 +153,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
     private MyAdapter aa;
-
 
     LocationListener locationListener = new LocationListener() {
         @Override
@@ -171,9 +174,10 @@ public class MainActivity extends ActionBarActivity {
     };
 
 
-
+    private AppInfo appInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        appInfo = AppInfo.getInstance(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         aList = new ArrayList<ListElement>();
@@ -252,6 +256,7 @@ public class MainActivity extends ActionBarActivity {
             m.put("lng", lng);
             m.put("msgid", msgid);
             m.put("msg", msg);
+            m.put("userid",appInfo.userid);
 
             myCallSpec.setParams(m);
             // Actual server call.
@@ -289,6 +294,7 @@ public class MainActivity extends ActionBarActivity {
         HashMap<String,String> m = new HashMap<String,String>();
         m.put("lat", lat);
         m.put("lng", lng);
+        m.put("userid",appInfo.userid);
         myCallSpec.setParams(m);
         // Actual server call.
         if (uploader != null) {
@@ -356,12 +362,14 @@ public class MainActivity extends ActionBarActivity {
         Log.i(LOG_TAG,"Trying to dejson: " + result);
         aList.clear();
         for (int i = 0; i < ml.messages.length; i++) {
+            Message message = ml.messages[i];
             ListElement ael = new ListElement();
             String formattedDate = getRelevantTimeDiff(ml.messages[i].ts);
-            ael.textLabel = ml.messages[i].msg;
+            ael.dest = message.userid;
+            ael.textLabel = message.msg;
             ael.timeText = formattedDate;
-            ael.messageID = ml.messages[i].msgid;
-            ael.timeStamp = ml.messages[i].ts;
+            ael.messageID = message.msgid;
+            ael.timeStamp = message.ts;
             aList.add(ael);
         }
         ListView lv = (ListView) findViewById(R.id.listView);

@@ -12,13 +12,17 @@
         android:label="Local Bulletin Board"
         android:theme="@style/Theme.AppCompat.Light" >
         <activity
-            android:name="com.dealfaro.luca.clicker.MainActivity"
+            android:name=".MainActivity"
             android:label="Local Bulletin Board" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ChatActivity"
+            android:label="@string/title_activity_chat" >
         </activity>
     </application>
 

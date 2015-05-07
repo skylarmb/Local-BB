@@ -8,4 +8,6 @@ public class Message {
     String msg;
     String msgid;
     String ts;
+    String dest;
+    String userid;
 }
