@@ -10,24 +10,33 @@
         android:text="New Text"
         android:id="@+id/itemText"
         android:layout_weight="0.50"
-        android:layout_gravity="left"
+        android:layout_gravity="left|center_vertical"
         android:layout_marginRight="15dp"
         android:textColor="@color/abc_primary_text_material_light" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioButton"
+        android:layout_gravity="center_vertical"
+        android:checked="true"
+        android:enabled="true"
+        android:clickable="false"
+        android:gravity="right"
+        android:visibility="invisible" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
         android:id="@+id/timeText"
-        android:layout_weight="0.15"
-        android:minWidth="30dp"
         android:nestedScrollingEnabled="true"
         android:maxWidth="30dp"
         android:layout_gravity="center_vertical|right"
         android:autoText="false"
-        android:gravity="right"
         android:layout_marginLeft="10dp"
-        android:textColor="@color/abc_primary_text_material_light" />
+        android:textColor="@color/abc_primary_text_material_light"
+        android:gravity="left" />
 
     <!--Button
         style="?android:attr/buttonBarButtonStyle"

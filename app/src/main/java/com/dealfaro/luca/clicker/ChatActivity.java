@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -37,6 +38,7 @@ import java.util.TimeZone;
 
 
 public class ChatActivity extends ActionBarActivity {
+
     private AppInfo appInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +51,13 @@ public class ChatActivity extends ActionBarActivity {
         myListView.setAdapter(aa);
         aa.notifyDataSetChanged();
         TextView tv = (TextView) findViewById(R.id.locTextView);
-        tv.setText(getIntentMessage());
+        tv.setText("Private chat with:\n" + getIntentMessage());
         showLoadingDialog();
     }
 
     private void refreshOnChange() {
-        clickRefresh(findViewById(R.id.button2));
-        dismissLoadingDialog();
+        Button rf = (Button) findViewById(R.id.button2);
+        rf.performClick();
     }
 
     private String getIntentMessage() {
@@ -227,19 +229,18 @@ public class ChatActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        //dismissLoadingDialog();
         super.onResume();
         // First super, then do stuff.
         // Let us display the previous posts, if any.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String result = settings.getString(PREF_POSTS, null);
-        if (result != null) {
-            displayResult(result);
-        }
+
+        hasRefreshed = false;
+        showLoadingDialog();
+        refreshOnChange();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        refreshOnChange();
     }
 
     @Override
@@ -386,8 +387,7 @@ public class ChatActivity extends ActionBarActivity {
                 editor.commit();
 
             }
-            if(hasRefreshed)
-                dismissLoadingDialog();
+            dismissLoadingDialog();
         }
     }
 

@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +39,7 @@ import java.util.Random;
 import java.util.TimeZone;
 
 public class MainActivity extends ActionBarActivity {
-
+    Boolean hasRefreshed = false;
     Location lastLocation;
     private double lastAccuracy = (double) 1e10;
     private long lastAccuracyTime = 0;
@@ -92,6 +95,7 @@ public class MainActivity extends ActionBarActivity {
         public String timeStamp;
         public String messageID;
         public String dest;
+        public Boolean conversation;
     }
 
     private ArrayList<ListElement> aList;
@@ -136,12 +140,17 @@ public class MainActivity extends ActionBarActivity {
             newView.setTag("Posted: " + w.timeStamp + "\nID: " + w.messageID);
             newView.setTag(w.dest);
 
+            //Shows the green dot if appropriate
+            RadioButton rb = (RadioButton) newView.findViewById(R.id.radioButton);
+            rb.setVisibility(View.INVISIBLE);
+            Log.i(LOG_TAG, "Message: " + w.textLabel + ", Conv: " + w.conversation.toString());
+            if(w.conversation) {
+                Log.i(LOG_TAG, "Setting: " + w.textLabel + " to visible");
+                rb.setVisibility(View.VISIBLE);
+            }
             newView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //String s = v.getTag().toString();
-                    //showToast(s);
-                    //
                     String destination = "com.dealfaro.luca.clicker.DESTINATION";
                     Intent intent = new Intent(MainActivity.this, ChatActivity.class);
                     intent.putExtra(destination, v.getTag().toString());
@@ -161,6 +170,10 @@ public class MainActivity extends ActionBarActivity {
             lastLocation = location;
             TextView tv = (TextView) findViewById(R.id.locTextView);
             tv.setText(location.getLatitude() + ", " + location.getLongitude());
+            if(!hasRefreshed) {
+                refreshOnChange();
+                hasRefreshed = true;
+            }
         }
 
         @Override
@@ -185,6 +198,7 @@ public class MainActivity extends ActionBarActivity {
         ListView myListView = (ListView) findViewById(R.id.listView);
         myListView.setAdapter(aa);
         aa.notifyDataSetChanged();
+        showLoadingDialog();
     }
 
     @Override
@@ -195,15 +209,15 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        dismissLoadingDialog();
         super.onResume();
         // First super, then do stuff.
         // Let us display the previous posts, if any.
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         String result = settings.getString(PREF_POSTS, null);
-        if (result != null) {
-            displayResult(result);
-        }
+
+        hasRefreshed = false;
+        showLoadingDialog();
+        refreshOnChange();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
@@ -221,6 +235,11 @@ public class MainActivity extends ActionBarActivity {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager.removeUpdates(locationListener);
         super.onPause();
+    }
+
+    private void refreshOnChange() {
+        Button rf = (Button) findViewById(R.id.button2);
+        rf.performClick();
     }
 
 
@@ -282,8 +301,10 @@ public class MainActivity extends ActionBarActivity {
             lat = Double.toString(lastLocation.getLatitude());
             lng = Double.toString(lastLocation.getLongitude());
         }catch(Exception e){
-            dismissLoadingDialog();
-            showToast("Unable to get location");
+            if(hasRefreshed) {
+                dismissLoadingDialog();
+                showToast("Unable to get location");
+            }
             return;
         }
         // Then, we start the call.
@@ -370,6 +391,7 @@ public class MainActivity extends ActionBarActivity {
             ael.timeText = formattedDate;
             ael.messageID = message.msgid;
             ael.timeStamp = message.ts;
+            ael.conversation = message.conversation;
             aList.add(ael);
         }
         ListView lv = (ListView) findViewById(R.id.listView);

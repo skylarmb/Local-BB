@@ -10,4 +10,5 @@ public class Message {
     String ts;
     String dest;
     String userid;
+    Boolean conversation;
 }
