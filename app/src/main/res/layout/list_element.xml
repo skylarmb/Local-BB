@@ -28,15 +28,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
+        android:text="1m"
         android:id="@+id/timeText"
-        android:nestedScrollingEnabled="true"
+        android:nestedScrollingEnabled="false"
         android:maxWidth="30dp"
         android:layout_gravity="center_vertical|right"
         android:autoText="false"
         android:layout_marginLeft="10dp"
         android:textColor="@color/abc_primary_text_material_light"
-        android:gravity="left" />
+        android:gravity="right"
+        android:minWidth="30dp" />
 
     <!--Button
         style="?android:attr/buttonBarButtonStyle"

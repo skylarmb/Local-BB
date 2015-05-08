@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -143,9 +142,7 @@ public class MainActivity extends ActionBarActivity {
             //Shows the green dot if appropriate
             RadioButton rb = (RadioButton) newView.findViewById(R.id.radioButton);
             rb.setVisibility(View.INVISIBLE);
-            Log.i(LOG_TAG, "Message: " + w.textLabel + ", Conv: " + w.conversation.toString());
             if(w.conversation) {
-                Log.i(LOG_TAG, "Setting: " + w.textLabel + " to visible");
                 rb.setVisibility(View.VISIBLE);
             }
             newView.setOnClickListener(new View.OnClickListener() {
@@ -362,7 +359,6 @@ public class MainActivity extends ActionBarActivity {
                 // Translates the string result, decoding the Json.
                 EditText et = (EditText) findViewById(R.id.editText);
                 et.setText("");
-                Log.i(LOG_TAG, "Received string: " + result);
                 displayResult(result);
                 // Stores in the settings the last messages received.
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -380,7 +376,6 @@ public class MainActivity extends ActionBarActivity {
         Gson gson = new Gson();
         MessageList ml = gson.fromJson(result, MessageList.class);
         // Fills aList, so we can fill the listView.
-        Log.i(LOG_TAG,"Trying to dejson: " + result);
         aList.clear();
         for (int i = 0; i < ml.messages.length; i++) {
             Message message = ml.messages[i];
